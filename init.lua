@@ -13,7 +13,7 @@ minetest.log("error", "[areas_entities] mcl_damage detected, modifying damage ha
 -- Modify damage handling for entities
 local original_damage_function = mcl_damage.run_modifiers
 mcl_damage.run_modifiers = function(obj, damage, reason)
-    minetest.log("error", "[areas_entities] Damage function called for "..minetest.serialize(obj:get_luaentity()))
+    minetest.log("error", "[areas_entities] Damage function called for "..minetest.serialize(obj))
     -- Check if the target is an entity (not a player) and if the source of damage is a player
     if obj and not obj:is_player() and reason.source and reason.source:is_player() then
         local pos = obj:get_pos()
