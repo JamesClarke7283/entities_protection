@@ -9,6 +9,7 @@ local function is_player_an_area_owner(player_name, pos)
     return false
 end
 if minetest.get_modpath("mcl_damage") then
+minetest.log("error", "[areas_entities] mcl_damage detected, modifying damage handling for entities")
 -- Modify damage handling for entities
 local original_damage_function = mcl_damage.run_modifiers
 mcl_damage.run_modifiers = function(obj, damage, reason)
