@@ -15,7 +15,7 @@ local original_damage_function = mcl_damage.run_modifiers
 mcl_damage.run_modifiers = function(obj, damage, reason)
     minetest.log("error", "[areas_entities] Damage function called for "..minetest.serialize(obj:get_luaentity()))
     -- Check if the target is an entity (not a player) and if the source of damage is a player
-    if obj and obj:get_luaentity() and not obj:is_player() and reason.source and reason.source:is_player() then
+    if obj and not obj:is_player() and reason.source and reason.source:is_player() then
         local pos = obj:get_pos()
         local player_name = reason.source:get_player_name()
 
