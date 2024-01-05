@@ -13,7 +13,7 @@ minetest.log("error", "[areas_entities] mcl_damage detected, modifying damage ha
 -- Modify damage handling for entities
 local original_damage_function = mcl_damage.run_modifiers
 mcl_damage.run_modifiers = function(obj, damage, reason)
-    if obj:get_luaentity() != nil then
+    if obj:get_luaentity() then
     minetest.log("error", "[areas_entities] Damage function called for" .. obj:get_luaentity().name)
     end
     -- Check if the target is an entity (not a player) and if the source of damage is a player
