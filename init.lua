@@ -5,6 +5,7 @@ if minetest.get_modpath("mcl_damage") then
     -- Modify damage handling for entities
     local original_damage_function = mcl_damage.run_modifiers
     mcl_damage.run_modifiers = function(obj, damage, reason)
+      minetest.log("action","[areas_entities] Run modifiers was run")
 
       -- Log the reason type and the object name
         local reason_type = reason and reason.type or "<nil>"
@@ -22,9 +23,9 @@ if minetest.get_modpath("mcl_damage") then
                 source_name = "<unknown source>"
             end
         end
-        minetest.log("action","Reason type:\t"..reason_type)
-        minetest.log("action","Source Name:\t"..source_name)
-        minetest.log("action","Reason type:\t"..obj_name)
+        minetest.log("action","[areas_entities] Reason type:\t"..reason_type)
+        minetest.log("action","[areas_entities] Source Name:\t"..source_name)
+        minetest.log("action","[areas_entities] Object Name:\t"..obj_name)
         minetest.log("action", "[areas_entities] Damage Modifier Called - Reason Type: " .. reason_type ..
                     ", Source Name: " .. source_name .. ", Object Name: " .. obj_name)
 
