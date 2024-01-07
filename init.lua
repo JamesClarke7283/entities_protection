@@ -22,9 +22,16 @@ local function update_entity_on_punch(entity)
             local attachment = hitter:get_attach()
             local children = hitter:get_children()
 
+            -- Convert attachment and children to tables
+            local attachment_table = attachment or {}
+            local children_tables = {}
+            for _, child in ipairs(children) do
+                table.insert(children_tables, child:to_table())
+            end
+
             -- Log attachment and children details
-            minetest.log("action", "[areas_entities] Attachment Details: " .. minetest.serialize(attachment))
-            minetest.log("action", "[areas_entities] Children Details: " .. minetest.serialize(children))
+            minetest.log("action", "[areas_entities] Attachment Details: " .. minetest.serialize(attachment_table))
+            minetest.log("action", "[areas_entities] Children Details: " .. minetest.serialize(children_tables))
 
             if hitter:is_player() then
                 -- Hitter is a player
@@ -37,8 +44,8 @@ local function update_entity_on_punch(entity)
                 end
             else
                 -- Hitter is another entity, check if it's attached to a player
-                if attachment and attachment.parent and attachment.parent:is_player() then
-                    local parent_player_name = attachment.parent:get_player_name()
+                if attachment_table.parent and attachment_table.parent:is_player() then
+                    local parent_player_name = attachment_table.parent:get_player_name()
                     local is_protected = minetest.is_protected(pos, parent_player_name)
                     minetest.log("action", "[areas_entities] Checking protection at pos " .. minetest.pos_to_string(pos) .. " for entity's parent player " .. parent_player_name .. ". Is protected: " .. tostring(is_protected))
                     if is_protected then
@@ -54,7 +61,6 @@ local function update_entity_on_punch(entity)
         end
     end
 end
-
 
 
 
