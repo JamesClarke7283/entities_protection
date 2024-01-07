@@ -26,7 +26,7 @@ local function update_entity_on_punch(entity)
             local attachment_table = attachment or {}
             local children_tables = {}
             for _, child in ipairs(children) do
-                table.insert(children_tables, child:to_table())
+                table.insert(children_tables, child:get_properties())
             end
 
             -- Log attachment and children details
