@@ -22,7 +22,9 @@ if minetest.get_modpath("mcl_damage") then
                 source_name = "<unknown source>"
             end
         end
-
+        minetest.log("action","Reason type:\t"..reason_type)
+        minetest.log("action","Source Name:\t"..source_name)
+        minetest.log("action","Reason type:\t"..obj_name)
         minetest.log("action", "[areas_entities] Damage Modifier Called - Reason Type: " .. reason_type ..
                     ", Source Name: " .. source_name .. ", Object Name: " .. obj_name)
 
