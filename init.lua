@@ -1,5 +1,5 @@
 -- Function to check if a player is an owner of the area
-local function is_player_an_area_owner(playername, pos)
+local function is_player_an_area_owner(player_name, pos)
     local owners = areas:getNodeOwners(pos)
     for _, owner in ipairs(owners) do
         if owner == player_name then
