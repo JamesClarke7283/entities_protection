@@ -1,11 +1,14 @@
 -- Function to check if a player is an owner of the area
 local function is_player_an_area_owner(player_name, pos)
     local owners = areas:getNodeOwners(pos)
+    minetest.log("action", "[areas_entities] Checking area ownership for player: " .. player_name)
     for _, owner in ipairs(owners) do
         if owner == player_name then
+            minetest.log("action", "[areas_entities] Player is an area owner.")
             return true
         end
     end
+    minetest.log("action", "[areas_entities] Player is not an area owner.")
     return false
 end
 
@@ -17,6 +20,7 @@ minetest.register_globalstep(function(dtime)
             if lua_entity and lua_entity.punched then
                 -- The entity has been punched, reset the flag
                 lua_entity.punched = nil
+                minetest.log("action", "[areas_entities] Entity punched flag reset.")
 
                 -- Check if the puncher is a player
                 local puncher = lua_entity.last_puncher
@@ -38,6 +42,7 @@ end)
 
 -- Override the entity punch function
 local function override_entity_punch()
+    minetest.log("action", "[areas_entities] Overriding entity punch functions.")
     for _, entity in pairs(minetest.registered_entities) do
         if entity.on_punch then
             -- Store the original on_punch function
@@ -45,6 +50,7 @@ local function override_entity_punch()
 
             -- Override the on_punch function
             entity.on_punch = function(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
+                minetest.log("action", "[areas_entities] Entity punched. Marking for check.")
                 -- Mark the entity as punched and store the puncher and HP
                 self.punched = true
                 self.last_puncher = hitter
