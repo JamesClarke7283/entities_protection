@@ -38,8 +38,29 @@ end
 
 
 
--- Globalstep function to monitor and update entity punches
+-- Define the reset interval (in seconds)
+local reset_interval = 60
+local time_since_last_reset = 0
+
 minetest.register_globalstep(function(dtime)
+    -- Increment the timer
+    time_since_last_reset = time_since_last_reset + dtime
+
+    -- Check if the reset interval has been reached
+    if time_since_last_reset >= reset_interval then
+        -- Reset the timer
+        time_since_last_reset = 0
+
+        -- Loop through all entities and reset the _areas_entities_updated flag
+        for _, obj in ipairs(minetest.get_objects_inside_radius({x=0, y=0, z=0}, 50000)) do
+            local lua_entity = obj:get_luaentity()
+            if lua_entity then
+                lua_entity._areas_entities_updated = false
+            end
+        end
+    end
+
+    -- Continue with the regular update logic
     for _, obj in ipairs(minetest.get_objects_inside_radius({x=0, y=0, z=0}, 50000)) do
         local lua_entity = obj:get_luaentity()
         if lua_entity then
@@ -52,6 +73,7 @@ minetest.register_globalstep(function(dtime)
             minetest.log("action", "[areas_entities] Lua Entity _areas_entities_updated = " .. updated_status ..
                          ", Entity Name: " .. entity_name .. ", Position: " .. pos_str)
 
+            -- Update the entity if it hasn't been updated yet
             if not lua_entity._areas_entities_updated then
                 update_entity_on_punch(lua_entity)
                 lua_entity._areas_entities_updated = true
@@ -59,6 +81,7 @@ minetest.register_globalstep(function(dtime)
         end
     end
 end)
+
 
 
 
