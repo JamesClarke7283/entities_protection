@@ -118,8 +118,8 @@ minetest.register_globalstep(function(dtime)
                 local pos_str = pos and minetest.pos_to_string(pos) or "<unknown pos>"
 
                 -- Log the status, entity name, and position
-                minetest.log("action", "[entities_protection] Lua Entity _areas_entities_updated = " .. updated_status ..
-                             ", Entity Name: " .. entity_name .. ", Position: " .. pos_str)
+                --minetest.log("action", "[entities_protection] Lua Entity _areas_entities_updated = " .. updated_status ..
+                --             ", Entity Name: " .. entity_name .. ", Position: " .. pos_str)
 
                 -- Update the entity if it hasn't been updated yet
                 if not lua_entity._areas_entities_updated then
@@ -141,7 +141,7 @@ for _, entity in pairs(minetest.registered_entities) do
 end
 
 minetest.register_on_mods_loaded(function()
-    minetest.log("action", "[entities_protection] Server restarted, attempting to reset entity punch overrides.")
+    --minetest.log("action", "[entities_protection] Server restarted, attempting to reset entity punch overrides.")
     for _, obj in pairs(minetest.luaentities) do
         if obj and obj.object and obj.object:get_luaentity() then
             local lua_entity = obj.object:get_luaentity()
