@@ -1,11 +1,8 @@
-
 if minetest.get_modpath("mcl_damage") then
     minetest.log("notice", "[areas_entities] mcl_damage detected, adding custom damage handling for entities")
 
     -- Function to handle custom damage logic
     local function custom_damage_handler(obj, damage, reason)
-        minetest.log("action", "[areas_entities] Custom Damage Handler Called")
-
         -- Log the reason type and the object name
         local reason_type = reason and reason.type or "<nil>"
         local obj_name = obj and (obj:is_player() and obj:get_player_name() or (obj:get_luaentity() and obj:get_luaentity().name)) or "<nil>"
@@ -44,6 +41,6 @@ if minetest.get_modpath("mcl_damage") then
         return damage -- Return the original damage if no conditions are met
     end
 
-    -- Register the custom damage handler
-    mcl_damage.register_on_damage(custom_damage_handler)
+    -- Register the custom damage modifier
+    mcl_damage.register_modifier(custom_damage_handler, 0)
 end
