@@ -1,20 +1,35 @@
--- Function to check if a player is an owner of the area
-local function is_player_an_area_owner(player_name, pos)
-    minetest.log("action", "[areas_entities] Checking area ownership for player: " .. player_name)
-    local owners = areas:getNodeOwners(pos)
-    for _, owner in ipairs(owners) do
-        if owner == player_name then
-            minetest.log("action", "[areas_entities] Player is an area owner.")
-            return true
-        end
+-- Function to check if an entity type or specific entity should be excluded from protection
+local function should_exclude_entity(entity)
+    -- Read the settings
+    local exclude_monsters = minetest.settings:get_bool("areas_entities.exclude_monsters", true)
+    local excluded_entities_list = minetest.settings:get("areas_entities.excluded_entities") or ""
+    local excluded_entities = {}
+    for entity_instance in excluded_entities_list:gmatch("[^,]+") do
+        table.insert(excluded_entities, entity_instance:trim())
     end
-    minetest.log("action", "[areas_entities] Player is not an area owner.")
+
+    -- Check if the entity type is 'monster' and should be excluded
+    if exclude_monsters and entity.type == "monster" then
+        return true
+    end
+
+    -- Check if the specific entity is in the excluded list
+    if table.contains(excluded_entities, entity.name) then
+        return true
+    end
+
     return false
 end
 
 local function update_entity_on_punch(entity)
     local original_on_punch = entity.on_punch
     entity.on_punch = function(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
+
+      -- Before checking for area protection, determine if the entity should be excluded
+        if should_exclude_entity(self.object:get_luaentity()) then
+            return original_on_punch(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
+        end
+
         local pos = self.object:get_pos()
 
         -- Initialize variables
@@ -28,17 +43,20 @@ local function update_entity_on_punch(entity)
                 -- If the shooter is a player, use their name for protection checks
                 player_name = shooter:get_player_name()
                 is_protected = minetest.is_protected(pos, player_name)
-                minetest.log("action", "[areas_entities] Shooter Detected: " .. player_name .. ". Is protected: " .. tostring(is_protected))
+                minetest.log("action", "[areas_entities] Shooter Detected: " .. player_name .. ". Is protected: " ..
+                tostring(is_protected))
             elseif hitter:is_player() then
                 -- If the hitter is a player, use their name for protection checks
                 player_name = hitter:get_player_name()
                 is_protected = minetest.is_protected(pos, player_name)
-                minetest.log("action", "[areas_entities] Hitter is player: " .. player_name .. ". Is protected: " .. tostring(is_protected))
+                minetest.log("action", "[areas_entities] Hitter is player: " .. player_name .. ". Is protected: "
+                .. tostring(is_protected))
             end
 
             -- If the area is protected, prevent damage
             if is_protected then
-                minetest.log("action", "[areas_entities] Preventing entity damage in protected area by " .. (player_name or "unknown source"))
+                minetest.log("action", "[areas_entities] Preventing entity damage in protected area by "
+                .. (player_name or "unknown source"))
                 return true
             end
         end

@@ -1,0 +1,5 @@
+# Exclude all 'monster' type entities from protection
+areas_entities.exclude_monsters (Exclude Monsters) bool true
+
+# List of specific entities to exclude from protection, separated by commas
+areas_entities.excluded_entities (Excluded Entities) string 
