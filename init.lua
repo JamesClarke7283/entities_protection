@@ -19,16 +19,18 @@ local function update_entity_on_punch(entity)
         if hitter and hitter:is_player() then
             local pos = self.object:get_pos()
             local player_name = hitter:get_player_name()
-            if minetest.is_protected(pos, player_name) == true then
-                minetest.log("action", "[areas_entities] Preventing entity damage by non-owner " .. player_name)
-                return
+            if minetest.is_protected(pos, player_name) then
+                minetest.log("action", "[areas_entities] Preventing entity damage in protected area by " .. player_name)
+                return true  -- Returning true should prevent the default damage handling
             end
         end
+
         if original_on_punch then
-            original_on_punch(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
+            return original_on_punch(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
         end
     end
 end
+
 
 -- Globalstep function to monitor and update entity punches
 minetest.register_globalstep(function(dtime)
