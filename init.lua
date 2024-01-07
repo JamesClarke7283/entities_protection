@@ -15,6 +15,7 @@ local function override_entity_punch()
     -- Iterate over all registered entities
     for _, entity in pairs(minetest.registered_entities) do
         -- Store the original on_punch function
+        minetest.log("action", "[areas_entities] On Punch: "..minetest.serialize(entity.on_punch))
         local original_on_punch = entity.on_punch
 
         -- Override the on_punch function
