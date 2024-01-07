@@ -1,13 +1,12 @@
 
 if minetest.get_modpath("mcl_damage") then
-    minetest.log("notice", "[areas_entities] mcl_damage detected, modifying damage handling for entities")
+    minetest.log("notice", "[areas_entities] mcl_damage detected, adding custom damage handling for entities")
 
-    -- Modify damage handling for entities
-    local original_damage_function = mcl_damage.run_modifiers
-    mcl_damage.run_modifiers = function(obj, damage, reason)
-      minetest.log("action","[areas_entities] Run modifiers was run")
+    -- Function to handle custom damage logic
+    local function custom_damage_handler(obj, damage, reason)
+        minetest.log("action", "[areas_entities] Custom Damage Handler Called")
 
-      -- Log the reason type and the object name
+        -- Log the reason type and the object name
         local reason_type = reason and reason.type or "<nil>"
         local obj_name = obj and (obj:is_player() and obj:get_player_name() or (obj:get_luaentity() and obj:get_luaentity().name)) or "<nil>"
 
@@ -23,18 +22,13 @@ if minetest.get_modpath("mcl_damage") then
                 source_name = "<unknown source>"
             end
         end
-        minetest.log("action","[areas_entities] Reason type:\t"..reason_type)
-        minetest.log("action","[areas_entities] Source Name:\t"..source_name)
-        minetest.log("action","[areas_entities] Object Name:\t"..obj_name)
-        minetest.log("action", "[areas_entities] Damage Modifier Called - Reason Type: " .. reason_type ..
+        minetest.log("action", "[areas_entities] Reason Type: " .. reason_type ..
                     ", Source Name: " .. source_name .. ", Object Name: " .. obj_name)
 
-
-        -- Check if the target is an entity (not a player) and if the source of damage is a player
+        -- Custom logic to handle damage
         if obj and not obj:is_player() and reason.source and reason.source:is_player() then
             -- Get the position of the entity
             local pos = obj:get_pos()
-
             -- Get the name of the player causing the damage
             local player_name = reason.source:get_player_name()
             local is_protected = minetest.is_protected(pos, player_name)
@@ -43,11 +37,13 @@ if minetest.get_modpath("mcl_damage") then
             if is_protected then
                 -- Prevent the damage if the player is not an owner
                 minetest.log("action", "[areas_entities] Preventing damage by non-owner " .. player_name)
-                return 0
+                return 0 -- Prevent damage
             end
         end
 
-        -- Call the original damage function for other cases
-        return original_damage_function(obj, damage, reason)
+        return damage -- Return the original damage if no conditions are met
     end
+
+    -- Register the custom damage handler
+    mcl_damage.register_on_damage(custom_damage_handler)
 end
