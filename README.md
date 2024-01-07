@@ -1,4 +1,4 @@
-# Areas Entities
+# Entities Protection
 Protects entities inside protected areas
 
 ## License
