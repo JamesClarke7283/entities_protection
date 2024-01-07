@@ -17,52 +17,38 @@ local function update_entity_on_punch(entity)
     entity.on_punch = function(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
         local pos = self.object:get_pos()
 
+        -- Initialize variables
+        local player_name, is_protected
+
         -- Check for attachments and children of the hitter
         if hitter then
-            local attachment = hitter:get_attach()
-            local children = hitter:get_children()
-
-            -- Convert attachment and children to tables
-            local attachment_table = attachment or {}
-            local children_tables = {}
-            for _, child in ipairs(children) do
-                table.insert(children_tables, child:get_properties())
+            -- Check if the hitter has a "_shooter" property
+            local shooter = hitter:get_luaentity() and hitter:get_luaentity()._shooter
+            if shooter and shooter:is_player() then
+                -- If the shooter is a player, use their name for protection checks
+                player_name = shooter:get_player_name()
+                is_protected = minetest.is_protected(pos, player_name)
+                minetest.log("action", "[areas_entities] Shooter Detected: " .. player_name .. ". Is protected: " .. tostring(is_protected))
+            elseif hitter:is_player() then
+                -- If the hitter is a player, use their name for protection checks
+                player_name = hitter:get_player_name()
+                is_protected = minetest.is_protected(pos, player_name)
+                minetest.log("action", "[areas_entities] Hitter is player: " .. player_name .. ". Is protected: " .. tostring(is_protected))
             end
 
-            -- Log attachment and children details
-            minetest.log("action", "[areas_entities] Attachment Details: " .. minetest.serialize(attachment_table))
-            minetest.log("action", "[areas_entities] Children Details: " .. minetest.serialize(children_tables))
-
-            if hitter:is_player() then
-                -- Hitter is a player
-                local player_name = hitter:get_player_name()
-                local is_protected = minetest.is_protected(pos, player_name)
-                minetest.log("action", "[areas_entities] Checking protection at pos " .. minetest.pos_to_string(pos) .. " for player " .. player_name .. ". Is protected: " .. tostring(is_protected))
-                if is_protected then
-                    minetest.log("action", "[areas_entities] Preventing entity damage in protected area by player " .. player_name)
-                    return true
-                end
-            else
-                -- Hitter is another entity, check if it's attached to a player
-                if attachment_table.parent and attachment_table.parent:is_player() then
-                    local parent_player_name = attachment_table.parent:get_player_name()
-                    local is_protected = minetest.is_protected(pos, parent_player_name)
-                    minetest.log("action", "[areas_entities] Checking protection at pos " .. minetest.pos_to_string(pos) .. " for entity's parent player " .. parent_player_name .. ". Is protected: " .. tostring(is_protected))
-                    if is_protected then
-                        minetest.log("action", "[areas_entities] Preventing entity damage in protected area by entity's parent player " .. parent_player_name)
-                        return true
-                    end
-                end
+            -- If the area is protected, prevent damage
+            if is_protected then
+                minetest.log("action", "[areas_entities] Preventing entity damage in protected area by " .. (player_name or "unknown source"))
+                return true
             end
         end
 
+        -- Call the original on_punch function if no protection logic was triggered
         if original_on_punch then
             return original_on_punch(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
         end
     end
 end
-
-
 
 
 -- Define the reset interval (in seconds)
