@@ -45,11 +45,12 @@ minetest.register_globalstep(function(dtime)
         if lua_entity then
             local updated_status = lua_entity._areas_entities_updated and "true" or "false"
             local entity_name = lua_entity.name or "<unknown>"
-            local object_id = tostring(obj:get_id())
+            local pos = obj:get_pos()
+            local pos_str = pos and minetest.pos_to_string(pos) or "<unknown pos>"
 
-            -- Log the status, object ID, and entity name
+            -- Log the status, entity name, and position
             minetest.log("action", "[areas_entities] Lua Entity _areas_entities_updated = " .. updated_status ..
-                         ", Object ID: " .. object_id .. ", Entity Name: " .. entity_name)
+                         ", Entity Name: " .. entity_name .. ", Position: " .. pos_str)
 
             if not lua_entity._areas_entities_updated then
                 update_entity_on_punch(lua_entity)
@@ -58,6 +59,7 @@ minetest.register_globalstep(function(dtime)
         end
     end
 end)
+
 
 
 -- Update the on_punch for all registered entities
