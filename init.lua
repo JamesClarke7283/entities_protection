@@ -45,18 +45,3 @@ end)
 for _, entity in pairs(minetest.registered_entities) do
     update_entity_on_punch(entity)
 end
-
-minetest.register_on_mods_loaded(function()
-    minetest.log("action", "[areas_entities] Server restarted, resetting entity punch overrides.")
-    local objects = minetest.get_objects_inside_radius({x=0, y=0, z=0}, 50000)
-    if objects then
-        for _, obj in ipairs(objects) do
-            local lua_entity = obj:get_luaentity()
-            if lua_entity then
-                lua_entity._areas_entities_updated = false
-            end
-        end
-    else
-        minetest.log("error", "[areas_entities] Unable to retrieve objects for reset.")
-    end
-end)
