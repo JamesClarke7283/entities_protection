@@ -1,5 +1,5 @@
 # Entities Protection
-Protects entities inside protected areas
+Protects entities from other players, inside protected areas
 
 ## License
 
