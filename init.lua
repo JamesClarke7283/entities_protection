@@ -51,36 +51,43 @@ minetest.register_globalstep(function(dtime)
         -- Reset the timer
         time_since_last_reset = 0
 
-        -- Loop through all entities and reset the _areas_entities_updated flag
-        for _, obj in ipairs(minetest.get_objects_inside_radius({x=0, y=0, z=0}, 50000)) do
-            local lua_entity = obj:get_luaentity()
-            if lua_entity then
-                lua_entity._areas_entities_updated = false
+        -- Reset _areas_entities_updated flag for entities around each player
+        for _, player in ipairs(minetest.get_connected_players()) do
+            local player_pos = player:get_pos()
+            for _, obj in ipairs(minetest.get_objects_inside_radius(player_pos, 1000)) do
+                local lua_entity = obj:get_luaentity()
+                if lua_entity then
+                    lua_entity._areas_entities_updated = false
+                end
             end
         end
     end
 
-    -- Continue with the regular update logic
-    for _, obj in ipairs(minetest.get_objects_inside_radius({x=0, y=0, z=0}, 50000)) do
-        local lua_entity = obj:get_luaentity()
-        if lua_entity then
-            local updated_status = lua_entity._areas_entities_updated and "true" or "false"
-            local entity_name = lua_entity.name or "<unknown>"
-            local pos = obj:get_pos()
-            local pos_str = pos and minetest.pos_to_string(pos) or "<unknown pos>"
+    -- Regular update logic
+    for _, player in ipairs(minetest.get_connected_players()) do
+        local player_pos = player:get_pos()
+        for _, obj in ipairs(minetest.get_objects_inside_radius(player_pos, 1000)) do
+            local lua_entity = obj:get_luaentity()
+            if lua_entity then
+                local updated_status = lua_entity._areas_entities_updated and "true" or "false"
+                local entity_name = lua_entity.name or "<unknown>"
+                local pos = obj:get_pos()
+                local pos_str = pos and minetest.pos_to_string(pos) or "<unknown pos>"
 
-            -- Log the status, entity name, and position
-            minetest.log("action", "[areas_entities] Lua Entity _areas_entities_updated = " .. updated_status ..
-                         ", Entity Name: " .. entity_name .. ", Position: " .. pos_str)
+                -- Log the status, entity name, and position
+                minetest.log("action", "[areas_entities] Lua Entity _areas_entities_updated = " .. updated_status ..
+                             ", Entity Name: " .. entity_name .. ", Position: " .. pos_str)
 
-            -- Update the entity if it hasn't been updated yet
-            if not lua_entity._areas_entities_updated then
-                update_entity_on_punch(lua_entity)
-                lua_entity._areas_entities_updated = true
+                -- Update the entity if it hasn't been updated yet
+                if not lua_entity._areas_entities_updated then
+                    update_entity_on_punch(lua_entity)
+                    lua_entity._areas_entities_updated = true
+                end
             end
         end
     end
 end)
+
 
 
 
