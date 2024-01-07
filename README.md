@@ -1,5 +1,3 @@
-Here's an addition to the `README.md` for the Entities Protection mod, including the settings options and usage instructions:
-
 # Entities Protection
 
 Protects entities from other players inside protected areas in Minetest. This mod ensures that only the owners of an area (or those with the appropriate permissions) can interact with entities within it.
