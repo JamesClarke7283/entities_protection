@@ -16,32 +16,37 @@ local function update_entity_on_punch(entity)
     local original_on_punch = entity.on_punch
     entity.on_punch = function(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
         local pos = self.object:get_pos()
-        local is_protected = false
-        local log_msg = "[areas_entities] Checking protection at pos " .. minetest.pos_to_string(pos)
 
+        -- Check for attachments and children of the hitter
         if hitter then
+            local attachment = hitter:get_attach()
+            local children = hitter:get_children()
+
+            -- Log attachment and children details
+            minetest.log("action", "[areas_entities] Attachment Details: " .. minetest.serialize(attachment))
+            minetest.log("action", "[areas_entities] Children Details: " .. minetest.serialize(children))
+
             if hitter:is_player() then
-                -- If the hitter is a player
+                -- Hitter is a player
                 local player_name = hitter:get_player_name()
-                is_protected = minetest.is_protected(pos, player_name)
-                log_msg = log_msg .. " for player " .. player_name
+                local is_protected = minetest.is_protected(pos, player_name)
+                minetest.log("action", "[areas_entities] Checking protection at pos " .. minetest.pos_to_string(pos) .. " for player " .. player_name .. ". Is protected: " .. tostring(is_protected))
+                if is_protected then
+                    minetest.log("action", "[areas_entities] Preventing entity damage in protected area by player " .. player_name)
+                    return true
+                end
             else
-                -- If the hitter is another entity, check protection for the entity's owner (if available)
-                local lua_entity = hitter:get_luaentity()
-                if lua_entity and lua_entity._owner then
-                    is_protected = minetest.is_protected(pos, lua_entity._owner)
-                    log_msg = log_msg .. " for entity owner " .. lua_entity._owner
+                -- Hitter is another entity, check if it's attached to a player
+                if attachment and attachment.parent and attachment.parent:is_player() then
+                    local parent_player_name = attachment.parent:get_player_name()
+                    local is_protected = minetest.is_protected(pos, parent_player_name)
+                    minetest.log("action", "[areas_entities] Checking protection at pos " .. minetest.pos_to_string(pos) .. " for entity's parent player " .. parent_player_name .. ". Is protected: " .. tostring(is_protected))
+                    if is_protected then
+                        minetest.log("action", "[areas_entities] Preventing entity damage in protected area by entity's parent player " .. parent_player_name)
+                        return true
+                    end
                 end
             end
-        end
-
-        -- Log the output of minetest.is_protected
-        minetest.log("action", log_msg .. ". Is protected: " .. tostring(is_protected))
-
-        if is_protected then
-            -- Prevent damage in protected areas
-            minetest.log("action", "[areas_entities] Preventing entity damage in protected area.")
-            return true  -- Returning true should prevent the default damage handling
         end
 
         if original_on_punch then
@@ -49,6 +54,7 @@ local function update_entity_on_punch(entity)
         end
     end
 end
+
 
 
 
