@@ -42,7 +42,8 @@ end
 minetest.register_globalstep(function(dtime)
     for _, obj in ipairs(minetest.get_objects_inside_radius({x=0, y=0, z=0}, 50000)) do
         local lua_entity = obj:get_luaentity()
-        minetest.log("action","Lua Entity _areas_entities_updated = "..lua_entity._areas_entities_updated or "nil")
+        local t = lua_entity._areas_entities_updated or "nil"
+        minetest.log("action","Lua Entity _areas_entities_updated = "..t)
         if lua_entity and not lua_entity._areas_entities_updated then
             update_entity_on_punch(lua_entity)
             lua_entity._areas_entities_updated = true
