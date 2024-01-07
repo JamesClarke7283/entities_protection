@@ -43,15 +43,22 @@ minetest.register_globalstep(function(dtime)
     for _, obj in ipairs(minetest.get_objects_inside_radius({x=0, y=0, z=0}, 50000)) do
         local lua_entity = obj:get_luaentity()
         if lua_entity then
-          local t = tostring(lua_entity._areas_entities_updated) or "nil"
-          minetest.log("action","Lua Entity _areas_entities_updated = "..t)
-          if not lua_entity._areas_entities_updated then
-            update_entity_on_punch(lua_entity)
-            lua_entity._areas_entities_updated = true
+            local updated_status = lua_entity._areas_entities_updated and "true" or "false"
+            local entity_name = lua_entity.name or "<unknown>"
+            local object_id = tostring(obj:get_id())
+
+            -- Log the status, object ID, and entity name
+            minetest.log("action", "[areas_entities] Lua Entity _areas_entities_updated = " .. updated_status ..
+                         ", Object ID: " .. object_id .. ", Entity Name: " .. entity_name)
+
+            if not lua_entity._areas_entities_updated then
+                update_entity_on_punch(lua_entity)
+                lua_entity._areas_entities_updated = true
+            end
         end
-      end
     end
 end)
+
 
 -- Update the on_punch for all registered entities
 for _, entity in pairs(minetest.registered_entities) do
