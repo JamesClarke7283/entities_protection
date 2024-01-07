@@ -19,7 +19,7 @@ local function update_entity_on_punch(entity)
         if hitter and hitter:is_player() then
             local pos = self.object:get_pos()
             local player_name = hitter:get_player_name()
-            if not is_player_an_area_owner(player_name, pos) then
+            if minetest.is_protected(pos, player_name) then
                 minetest.log("action", "[areas_entities] Preventing entity damage by non-owner " .. player_name)
                 return
             end
