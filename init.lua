@@ -9,29 +9,35 @@ local function is_player_an_area_owner(player_name, pos)
     return false
 end
 
-if minetest.get_modpath("mcl_damage") then
-    minetest.log("notice", "[areas_entities] mcl_damage detected, modifying damage handling for entities")
+-- Override the entity punch function
+local function override_entity_punch()
+    -- Iterate over all registered entities
+    for _, entity in pairs(minetest.registered_entities) do
+        -- Store the original on_punch function
+        local original_on_punch = entity.on_punch
 
-    -- Modify damage handling for entities
-    local original_damage_function = mcl_damage.run_modifiers
-    mcl_damage.run_modifiers = function(obj, damage, reason)
-        -- Check if the target is an entity (not a player) and if the source of damage is a player
-        if obj and not obj:is_player() and reason.source and reason.source:is_player() then
-            -- Get the position of the entity
-            local pos = obj:get_pos()
+        -- Override the on_punch function
+        entity.on_punch = function(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
+            -- Check if the hitter is a player and the entity is not a player
+            if hitter and hitter:is_player() and not self.object:is_player() then
+                local pos = self.object:get_pos()
+                local player_name = hitter:get_player_name()
 
-            -- Get the name of the player causing the damage
-            local player_name = reason.source:get_player_name()
+                -- Check if the player is an owner of the area
+                if not is_player_an_area_owner(player_name, pos) then
+                    -- Prevent the damage if the player is not an owner
+                    minetest.log("action", "[areas_entities] Preventing damage by non-owner " .. player_name)
+                    return
+                end
+            end
 
-            -- Check if the player is an owner of the area
-            if not is_player_an_area_owner(player_name, pos) then
-                -- Prevent the damage if the player is not an owner
-                minetest.log("action", "[areas_entities] Preventing damage by non-owner " .. player_name)
-                return 0
+            -- Otherwise, call the original on_punch function
+            if original_on_punch then
+                original_on_punch(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
             end
         end
-
-        -- Call the original damage function for other cases
-        return original_damage_function(obj, damage, reason)
     end
 end
+
+-- Call the function to override entity punch behavior
+override_entity_punch()
