@@ -12,14 +12,19 @@ local function is_player_an_area_owner(player_name, pos)
     return false
 end
 
--- Override entity punch function for existing and new entities
 local function update_entity_on_punch(entity)
     local original_on_punch = entity.on_punch
     entity.on_punch = function(self, hitter, time_from_last_punch, tool_capabilities, dir, damage)
         if hitter and hitter:is_player() then
             local pos = self.object:get_pos()
             local player_name = hitter:get_player_name()
-            if minetest.is_protected(pos, player_name) then
+            local is_protected = minetest.is_protected(pos, player_name)
+
+            -- Log the output of minetest.is_protected
+            minetest.log("action", "[areas_entities] Checking protection at pos " .. minetest.pos_to_string(pos) ..
+                         " for player " .. player_name .. ". Is protected: " .. tostring(is_protected))
+
+            if is_protected then
                 minetest.log("action", "[areas_entities] Preventing entity damage in protected area by " .. player_name)
                 return true  -- Returning true should prevent the default damage handling
             end
@@ -30,6 +35,7 @@ local function update_entity_on_punch(entity)
         end
     end
 end
+
 
 
 -- Globalstep function to monitor and update entity punches
