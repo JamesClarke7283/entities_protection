@@ -1,3 +1,14 @@
+-- Utility function to check if a table contains a specific value
+local function table_contains(table, value)
+    for _, v in ipairs(table) do
+        if v == value then
+            return true
+        end
+    end
+    return false
+end
+
+
 -- Function to check if an entity type or specific entity should be excluded from protection
 local function should_exclude_entity(entity)
     -- Read the settings
@@ -14,12 +25,13 @@ local function should_exclude_entity(entity)
     end
 
     -- Check if the specific entity is in the excluded list
-    if table.contains(excluded_entities, entity.name) then
+    if table_contains(excluded_entities, entity.name) then
         return true
     end
 
     return false
 end
+
 
 local function update_entity_on_punch(entity)
     local original_on_punch = entity.on_punch
