@@ -57,3 +57,15 @@ end)
 for _, entity in pairs(minetest.registered_entities) do
     update_entity_on_punch(entity)
 end
+
+minetest.register_on_mods_loaded(function()
+    minetest.log("action", "[areas_entities] Server restarted, attempting to reset entity punch overrides.")
+    for _, obj in pairs(minetest.luaentities) do
+        if obj and obj.object and obj.object:get_luaentity() then
+            local lua_entity = obj.object:get_luaentity()
+            if lua_entity then
+                lua_entity._areas_entities_updated = false
+            end
+        end
+    end
+end)
