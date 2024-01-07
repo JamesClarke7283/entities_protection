@@ -12,8 +12,8 @@ end
 -- Function to check if an entity type or specific entity should be excluded from protection
 local function should_exclude_entity(entity)
     -- Read the settings
-    local exclude_monsters = minetest.settings:get_bool("areas_entities.exclude_monsters", true)
-    local excluded_entities_list = minetest.settings:get("areas_entities.excluded_entities") or ""
+    local exclude_monsters = minetest.settings:get_bool("entities_protection.exclude_monsters", true)
+    local excluded_entities_list = minetest.settings:get("entities_protection.excluded_entities") or ""
     local excluded_entities = {}
     for entity_instance in excluded_entities_list:gmatch("[^,]+") do
         table.insert(excluded_entities, entity_instance:trim())
@@ -55,19 +55,19 @@ local function update_entity_on_punch(entity)
                 -- If the shooter is a player, use their name for protection checks
                 player_name = shooter:get_player_name()
                 is_protected = minetest.is_protected(pos, player_name)
-                minetest.log("action", "[areas_entities] Shooter Detected: " .. player_name .. ". Is protected: " ..
+                minetest.log("action", "[entities_protection] Shooter Detected: " .. player_name .. ". Is protected: " ..
                 tostring(is_protected))
             elseif hitter:is_player() then
                 -- If the hitter is a player, use their name for protection checks
                 player_name = hitter:get_player_name()
                 is_protected = minetest.is_protected(pos, player_name)
-                minetest.log("action", "[areas_entities] Hitter is player: " .. player_name .. ". Is protected: "
+                minetest.log("action", "[entities_protection] Hitter is player: " .. player_name .. ". Is protected: "
                 .. tostring(is_protected))
             end
 
             -- If the area is protected, prevent damage
             if is_protected then
-                minetest.log("action", "[areas_entities] Preventing entity damage in protected area by "
+                minetest.log("action", "[entities_protection] Preventing entity damage in protected area by "
                 .. (player_name or "unknown source"))
                 return true
             end
@@ -118,7 +118,7 @@ minetest.register_globalstep(function(dtime)
                 local pos_str = pos and minetest.pos_to_string(pos) or "<unknown pos>"
 
                 -- Log the status, entity name, and position
-                minetest.log("action", "[areas_entities] Lua Entity _areas_entities_updated = " .. updated_status ..
+                minetest.log("action", "[entities_protection] Lua Entity _areas_entities_updated = " .. updated_status ..
                              ", Entity Name: " .. entity_name .. ", Position: " .. pos_str)
 
                 -- Update the entity if it hasn't been updated yet
@@ -141,7 +141,7 @@ for _, entity in pairs(minetest.registered_entities) do
 end
 
 minetest.register_on_mods_loaded(function()
-    minetest.log("action", "[areas_entities] Server restarted, attempting to reset entity punch overrides.")
+    minetest.log("action", "[entities_protection] Server restarted, attempting to reset entity punch overrides.")
     for _, obj in pairs(minetest.luaentities) do
         if obj and obj.object and obj.object:get_luaentity() then
             local lua_entity = obj.object:get_luaentity()
