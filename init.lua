@@ -19,7 +19,7 @@ local function update_entity_on_punch(entity)
         if hitter and hitter:is_player() then
             local pos = self.object:get_pos()
             local player_name = hitter:get_player_name()
-            if minetest.is_protected(pos, player_name) then
+            if minetest.is_protected(pos, player_name) == true then
                 minetest.log("action", "[areas_entities] Preventing entity damage by non-owner " .. player_name)
                 return
             end
@@ -45,3 +45,14 @@ end)
 for _, entity in pairs(minetest.registered_entities) do
     update_entity_on_punch(entity)
 end
+
+-- Function called when all mods have finished loading
+minetest.register_on_mods_loaded(function()
+    minetest.log("action", "[areas_entities] Server restarted, resetting entity punch overrides.")
+    for _, obj in ipairs(minetest.get_objects_inside_radius({x=0, y=0, z=0}, 50000)) do
+        local lua_entity = obj:get_luaentity()
+        if lua_entity then
+            lua_entity._areas_entities_updated = false
+        end
+    end
+end)
