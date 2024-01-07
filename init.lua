@@ -1,6 +1,7 @@
 -- Function to check if a player is an owner of the area
 local function is_player_an_area_owner(player_name, pos)
     local owners = areas:getNodeOwners(pos)
+    minetest.log("action", "[areas_entities] Ran is_player_an_area_owner with owners: "..minetest.serialize(owners))
     for _, owner in ipairs(owners) do
         if owner == player_name then
             return true
@@ -26,8 +27,9 @@ local function override_entity_punch()
                 -- Check if the player is an owner of the area
                 if not is_player_an_area_owner(player_name, pos) then
                     -- Prevent the damage if the player is not an owner
+                    damage = 0
                     minetest.log("action", "[areas_entities] Preventing damage by non-owner " .. player_name)
-                    return
+                    return true
                 end
             end
 
