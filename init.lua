@@ -1,3 +1,23 @@
+local function remove_nearby_arrows(entity, radius)
+    if not entity then
+        return
+    end
+
+    local pos = entity:get_pos()
+    local radius = radius or 5 -- default radius of 5 units
+
+    -- Get all objects within the radius
+    local objects = minetest.get_objects_inside_radius(pos, radius)
+    for _, obj in ipairs(objects) do
+        local luaentity = obj:get_luaentity()
+        -- Check if the object is the specific arrow entity
+        if luaentity and luaentity.name == "mcl_bows:arrow_entity" then
+            obj:remove() -- Remove the arrow entity
+        end
+    end
+end
+
+
 -- Utility function to check if a table contains a specific value
 local function table_contains(table, value)
     for _, v in ipairs(table) do
@@ -70,8 +90,9 @@ local function update_entity_on_punch(entity)
                 minetest.log("action", "[entities_protection] Preventing entity damage in protected area by "
                 .. (player_name or "unknown source"))
                 if minetest.get_modpath("mcl_hunger") and minetest.get_modpath("mcl_potions") and minetest.get_modpath("mcl_burning") then
+                  remove_nearby_arrows(self)
                   mcl_hunger.stop_poison(self) -- Stop poisoning the player
-                  mcl_potions._reset_player_effects(self) -- Remove all potion effects from the player
+                  --._reset_player_effects(self) -- Remove all potion effects from the player
                   mcl_burning.extinguish(self) -- Extinguish the player if they are on fire
               end
                 return true
