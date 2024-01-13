@@ -91,7 +91,7 @@ local function update_entity_on_punch(entity)
                 .. (player_name or "unknown source"))
                 if minetest.get_modpath("mcl_hunger") and minetest.get_modpath("mcl_potions") and minetest.get_modpath("mcl_burning") then
                   remove_nearby_arrows(self.object)
-                  mcl_potions._clear_cached_player_data(self:get_luaentity())
+                  mcl_potions._clear_cached_player_data(self.object:get_luaentity())
                   --mcl_hunger.stop_poison(self) -- Stop poisoning the player
                   --._reset_player_effects(self) -- Remove all potion effects from the player
                   mcl_burning.extinguish(self.object) -- Extinguish the player if they are on fire
