@@ -1,3 +1,13 @@
+local function poison_func(player, factor, duration)
+--mcl_potions.poison_func(player, factor, duration)
+end
+
+minetest.register_on_mods_loaded(function()
+  if minetest.get_modpath("mcl_mobs") then
+    mcl_mobs.effect_functions["poison"] = poison_func
+  end
+end)
+
 local function remove_nearby_arrows(entity, radius)
     if not entity then
         return
