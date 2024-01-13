@@ -90,7 +90,7 @@ local function update_entity_on_punch(entity)
                 minetest.log("action", "[entities_protection] Preventing entity damage in protected area by "
                 .. (player_name or "unknown source"))
                 if minetest.get_modpath("mcl_hunger") and minetest.get_modpath("mcl_potions") and minetest.get_modpath("mcl_burning") then
-                  remove_nearby_arrows(self)
+                  remove_nearby_arrows(self.object)
                   mcl_hunger.stop_poison(self) -- Stop poisoning the player
                   --._reset_player_effects(self) -- Remove all potion effects from the player
                   mcl_burning.extinguish(self) -- Extinguish the player if they are on fire
