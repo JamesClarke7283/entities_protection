@@ -93,7 +93,7 @@ local function update_entity_on_punch(entity)
                   remove_nearby_arrows(self.object)
                   if mcl_potions._clear_cached_entity_data then
                     minetest.log("Clearing Entity Effects...")
-                    mcl_potions._clear_cached_entity_data(self.object)
+                    mcl_potions._clear_cached_entity_data(self)
                   end
                   mcl_burning.extinguish(self.object) -- Extinguish the player if they are on fire
               end
