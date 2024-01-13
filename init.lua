@@ -1,5 +1,7 @@
-local function poison_func(player, factor, duration)
---mcl_potions.poison_func(player, factor, duration)
+local function poison_func(entity, factor, duration)
+    if entity and not entity.effects_exempt then
+        mcl_potions.poison_func(entity, factor, duration)
+    end
 end
 
 minetest.register_on_mods_loaded(function()
@@ -97,6 +99,13 @@ local function update_entity_on_punch(entity)
 
             -- If the area is protected, prevent damage
             if is_protected then
+              -- Set effects_exempt and schedule to unset it after 5 seconds
+          self.object:get_luaentity().effects_exempt = true
+          minetest.after(10, function()
+              if self.object and self.object:get_luaentity() then
+                  self.object:get_luaentity().effects_exempt = nil
+              end
+          end)
                 minetest.log("action", "[entities_protection] Preventing entity damage in protected area by "
                 .. (player_name or "unknown source"))
                 if minetest.get_modpath("mcl_hunger") and minetest.get_modpath("mcl_potions") and minetest.get_modpath("mcl_burning") and minetest.get_modpath("mcl_bows") then
