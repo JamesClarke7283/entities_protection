@@ -1,13 +1,40 @@
-local function poison_func(entity, factor, duration)
-    if entity and not entity.effects_exempt then
-        mcl_potions.poison_func(entity, factor, duration)
-    end
-end
-
+-- Make poison harmless to entities flagged as effects_exempt (set when an
+-- entity is hit inside a protected area). The potion API differs between games,
+-- so detect which one is present:
+--   * minetest_game           -> no mcl_potions, nothing to override
+--   * VoxeLibre (mineclone2)  -> mcl_mobs.effect_functions / mcl_potions.poison_func
+--   * Mineclonia             -> mcl_potions.registered_effects.poison.res_condition
 minetest.register_on_mods_loaded(function()
-  if minetest.get_modpath("mcl_mobs") then
-    mcl_mobs.effect_functions["poison"] = poison_func
-  end
+    if not minetest.get_modpath("mcl_potions") then
+        return -- not a MineClone-family game (e.g. minetest_game)
+    end
+
+    -- VoxeLibre / MineClone2 style: wrap the poison effect function.
+    if mcl_mobs and mcl_mobs.effect_functions and mcl_potions.poison_func then
+        local original_poison_func = mcl_potions.poison_func
+        mcl_mobs.effect_functions["poison"] = function(entity, factor, duration)
+            if entity and not entity.effects_exempt then
+                original_poison_func(entity, factor, duration)
+            end
+        end
+        return
+    end
+
+    -- Mineclonia style: a registered effect with a resistance condition.
+    local poison = mcl_potions.registered_effects and mcl_potions.registered_effects.poison
+    if poison then
+        local original_res_condition = poison.res_condition
+        poison.res_condition = function(object)
+            local entity = object and object:get_luaentity()
+            if entity and entity.effects_exempt then
+                return true -- resist poison entirely while exempt
+            end
+            if original_res_condition then
+                return original_res_condition(object)
+            end
+            return false
+        end
+    end
 end)
 
 local function remove_nearby_arrows(entity, radius)
